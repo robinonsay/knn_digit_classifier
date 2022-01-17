@@ -1,6 +1,5 @@
 import heapq
 import random
-from collections import deque
 from operator import itemgetter
 from typing import TypeVar, List
 from numpy.typing import ArrayLike
@@ -45,8 +44,6 @@ class KDNodeHeapWrapper:
         self.ref_value = ref_value
 
     def __lt__(self, other):
-        if other.ref_value != self.ref_value:
-            raise ValueError("Reference Values Must Match")
         node_distance = distance.euclidean_distance(self.node.value, self.ref_value)
         other_distance = distance.euclidean_distance(other.node.value, self.ref_value)
         return node_distance <= other_distance
