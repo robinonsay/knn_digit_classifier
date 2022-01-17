@@ -44,16 +44,24 @@ class KDNodeHeapWrapper:
         self.node = node
         self.ref_value = ref_value
 
-    def __le__(self, other):
+    def __lt__(self, other):
+        if other.ref_value != self.ref_value:
+            raise ValueError("Reference Values Must Match")
         node_distance = distance.euclidean_distance(self.node.value, self.ref_value)
-        other_distance = distance.euclidean_distance(other.value, self.ref_value)
+        other_distance = distance.euclidean_distance(other.node.value, self.ref_value)
         return node_distance <= other_distance
+
+    def __repr__(self):
+        return repr(self.node)
+
+    def __str__(self):
+        return repr(self)
 
 
 class KDTree:
     __slots__ = ["origin"]
 
-    def __init__(self, data: List[ArrayLike], k: int = 1):
+    def __init__(self, data: List[ArrayLike]):
         """
 
         :param data:
@@ -95,6 +103,8 @@ class KDTree:
 
         def inner_kNN_search(current_node: KDNode = self.origin, depth: int = 0):
             axis = depth % dimension
+            if current_node is None:
+                return
             if current_node.left is None and current_node.right is None:
                 heapq.heappush(best_heap, KDNodeHeapWrapper(current_node, value))
             else:
@@ -106,10 +116,11 @@ class KDTree:
                 heapq.heappush(best_heap, KDNodeHeapWrapper(current_node, value))
                 best_node = best_heap[0].node
                 radius = distance.euclidean_distance(best_node.value, value)
-                if current_node.value[axis] - best_node.value[axis] <= radius:
+                dist_to_plane = abs(current_node.value[axis] - best_node.value[axis])
+                if dist_to_plane <= radius and current_node is not best_node:
                     if is_le_node:
                         inner_kNN_search(current_node.right, depth + 1)
                     else:
                         inner_kNN_search(current_node.left, depth + 1)
         inner_kNN_search()
-        return best_heap
+        return [w_node.node for w_node in best_heap]
