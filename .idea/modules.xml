@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$USER_HOME$/MSU/CSE 331/Projects/Project 5 - Spring 2021 AVL Trees Starter Code/.idea/Project 5 - Spring 2021 AVL Trees Starter Code.iml" filepath="$USER_HOME$/MSU/CSE 331/Projects/Project 5 - Spring 2021 AVL Trees Starter Code/.idea/Project 5 - Spring 2021 AVL Trees Starter Code.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/kNN_digit_classifier.iml" filepath="$PROJECT_DIR$/.idea/kNN_digit_classifier.iml" />
     </modules>
   </component>
