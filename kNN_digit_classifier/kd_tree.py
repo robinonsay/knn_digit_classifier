@@ -2,6 +2,7 @@ import heapq
 import random
 from collections import deque
 from operator import itemgetter
+from queue import LifoQueue
 from typing import TypeVar, List
 from numpy.typing import ArrayLike
 from kNN_digit_classifier import distance
@@ -37,6 +38,19 @@ class KDNode:
         return repr(self)
 
 
+class KDNodeHeapWrapper:
+    __slots__ = ["node", "ref_val"]
+
+    def __init__(self, node: KDNode, ref_val: int):
+        self.node = node
+        self.ref_val = ref_val
+
+    def __lt__(self, other: KDNode):
+        node_dist = distance.euclidean_distance(self.node.value, self.ref_val)
+        other_dist = distance.euclidean_distance(other.node.value, self.ref_val)
+        return node_dist < other_dist
+
+
 class KDTree:
     __slots__ = ["origin"]
 
@@ -65,42 +79,5 @@ class KDTree:
             return node
         self.origin = kd_tree(data)
 
-    def kNN_search(self, value: ArrayLike, k: int = 5) -> List:
-        dimension = len(value)
-        best_nodes = deque(maxlen=k)
-
-        def inner_kNN_search(current_node: KDNode = self.origin, depth: int = 0):
-            axis = depth % dimension
-            if current_node is None:
-                return
-            current_node_dist = distance.euclidean_distance(current_node.value, value)
-            if current_node.left is None and current_node.right is None:
-                if len(best_nodes) == 0:
-                    best_nodes.append(current_node)
-                else:
-                    if current_node_dist < distance.euclidean_distance(best_nodes[0].value, value):
-                        best_nodes.appendleft(current_node)
-                    else:
-                        best_nodes.append(current_node)
-            else:
-                is_le_node = value[axis] <= current_node.value[axis]
-                if is_le_node:
-                    inner_kNN_search(current_node.left, depth + 1)
-                else:
-                    inner_kNN_search(current_node.right, depth + 1)
-                if len(best_nodes) == 0:
-                    best_nodes.append(current_node)
-                else:
-                    if current_node_dist < distance.euclidean_distance(best_nodes[0].value, value):
-                        best_nodes.appendleft(current_node)
-                    else:
-                        best_nodes.append(current_node)
-                radius = distance.euclidean_distance(best_nodes[0].value, value)
-                dist_to_plane = abs(current_node.value[axis] - best_nodes[0].value[axis])
-                if dist_to_plane <= radius and current_node is not best_nodes[0]:
-                    if is_le_node:
-                        inner_kNN_search(current_node.right, depth + 1)
-                    else:
-                        inner_kNN_search(current_node.left, depth + 1)
-        inner_kNN_search()
-        return list(best_nodes)
+    def kNN_search(self, search_point: ArrayLike, k: int = 5) -> List:
+        pass
