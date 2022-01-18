@@ -1,5 +1,5 @@
 import argparse
-from typing import Dict, List
+from typing import Dict, List, Tuple
 from kNN_digit_classifier import data
 from kNN_digit_classifier.data import KDTreeDataWrapper
 from kNN_digit_classifier.kd_tree import KDTree, KDNode
@@ -13,7 +13,7 @@ def train(data_dict: Dict) -> KDTree:
     return KDTree(data_list)
 
 
-def classify(k_nn: List[KDNode]) -> int:
+def classify(k_nn: List[KDNode]) -> Tuple[int, int]:
     class_dict = {}
     for wrapped_data in k_nn:
         point = wrapped_data.value
@@ -22,10 +22,10 @@ def classify(k_nn: List[KDNode]) -> int:
         else:
             class_dict[point.key] += 1
     pred = class_dict.popitem()
-    for key, count in class_dict.items():
-        if count > pred[1]:
-            pred = (key, count)
-    return pred[0]
+    for key, cnt in class_dict.items():
+        if cnt > pred[1]:
+            pred = (key, cnt)
+    return pred
 
 
 if __name__ == "__main__":
@@ -42,11 +42,13 @@ if __name__ == "__main__":
     kd_tree = train(training_data)
     test_data = data.import_test_data(args.test_csv)
     print("Making Predictions...")
+    print("ImageID, Prediction, Count")
     with open("predictions.txt", "w") as pred_file:
         i = 1
-        for data_point in test_data[:1]:
+        for data_point in test_data:
             k_nn = kd_tree.kNN_search(data_point)
-            prediction = classify(k_nn)
+            prediction, count = classify(k_nn)
             pred_file.write(f"{i}, {prediction}")
-            print(f"{i}, {prediction}")
+            print(f"{i}, {prediction}, {count}")
+            i += 1
 

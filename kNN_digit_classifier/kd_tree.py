@@ -1,5 +1,6 @@
 import heapq
 import random
+from collections import deque
 from operator import itemgetter
 from typing import TypeVar, List
 from numpy.typing import ArrayLike
@@ -31,25 +32,6 @@ class KDNode:
 
     def __repr__(self):
         return f"{self.value}"
-
-    def __str__(self):
-        return repr(self)
-
-
-class KDNodeHeapWrapper:
-    __slots__ = ["node", "ref_value"]
-
-    def __init__(self, node: KDNode, ref_value: ArrayLike):
-        self.node = node
-        self.ref_value = ref_value
-
-    def __lt__(self, other):
-        node_distance = distance.euclidean_distance(self.node.value, self.ref_value)
-        other_distance = distance.euclidean_distance(other.node.value, self.ref_value)
-        return node_distance <= other_distance
-
-    def __repr__(self):
-        return repr(self.node)
 
     def __str__(self):
         return repr(self)
@@ -94,30 +76,42 @@ class KDTree:
             return node
         self.origin = kd_tree(data)
 
-    def kNN_search(self, value: ArrayLike) -> List:
+    def kNN_search(self, value: ArrayLike, k: int = 5) -> List:
         dimension = len(value)
-        best_heap: List[KDNodeHeapWrapper] = []
+        best_nodes = deque(maxlen=k)
 
         def inner_kNN_search(current_node: KDNode = self.origin, depth: int = 0):
             axis = depth % dimension
             if current_node is None:
                 return
+            current_node_dist = distance.euclidean_distance(current_node.value, value)
             if current_node.left is None and current_node.right is None:
-                heapq.heappush(best_heap, KDNodeHeapWrapper(current_node, value))
+                if len(best_nodes) == 0:
+                    best_nodes.append(current_node)
+                else:
+                    if current_node_dist < distance.euclidean_distance(best_nodes[0].value, value):
+                        best_nodes.appendleft(current_node)
+                    else:
+                        best_nodes.append(current_node)
             else:
                 is_le_node = value[axis] <= current_node.value[axis]
                 if is_le_node:
                     inner_kNN_search(current_node.left, depth + 1)
                 else:
                     inner_kNN_search(current_node.right, depth + 1)
-                heapq.heappush(best_heap, KDNodeHeapWrapper(current_node, value))
-                best_node = best_heap[0].node
-                radius = distance.euclidean_distance(best_node.value, value)
-                dist_to_plane = abs(current_node.value[axis] - best_node.value[axis])
-                if dist_to_plane <= radius and current_node is not best_node:
+                if len(best_nodes) == 0:
+                    best_nodes.append(current_node)
+                else:
+                    if current_node_dist < distance.euclidean_distance(best_nodes[0].value, value):
+                        best_nodes.appendleft(current_node)
+                    else:
+                        best_nodes.append(current_node)
+                radius = distance.euclidean_distance(best_nodes[0].value, value)
+                dist_to_plane = abs(current_node.value[axis] - best_nodes[0].value[axis])
+                if dist_to_plane <= radius and current_node is not best_nodes[0]:
                     if is_le_node:
                         inner_kNN_search(current_node.right, depth + 1)
                     else:
                         inner_kNN_search(current_node.left, depth + 1)
         inner_kNN_search()
-        return [w_node.node for w_node in best_heap]
+        return list(best_nodes)
