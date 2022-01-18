@@ -40,7 +40,7 @@ class KDNode:
 class KDTree:
     __slots__ = ["origin"]
 
-    def __init__(self, data: List[ArrayLike]):
+    def __init__(self, data: List[ArrayLike], sample_length: int = 10):
         """
 
         :param data:
@@ -57,8 +57,8 @@ class KDTree:
                 return None
             dimension = len(data_list[0])
             axis = depth % dimension
-            sample_length = 10 if len(data_list) > 3 else len(data_list)
-            samples = random.choices(data_list, k=sample_length)
+            s_length = sample_length if len(data_list) > sample_length else len(data_list)
+            samples = random.choices(data_list, k=s_length)
             samples.sort(key=itemgetter(axis))
             median = samples[len(samples) // 2]
             left_subtree = []

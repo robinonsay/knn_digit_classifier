@@ -1,4 +1,5 @@
 import argparse
+import time
 from typing import Dict, List, Tuple
 from kNN_digit_classifier import data
 from kNN_digit_classifier.data import KDTreeDataWrapper
@@ -10,7 +11,7 @@ def train(data_dict: Dict) -> KDTree:
     for key, values in data_dict.items():
         for val in values:
             data_list.append(KDTreeDataWrapper(key, val))
-    return KDTree(data_list)
+    return KDTree(data_list, sample_length=1000)
 
 
 def classify(k_nn: List[KDNode]) -> Tuple[int, int]:
@@ -42,13 +43,15 @@ if __name__ == "__main__":
     kd_tree = train(training_data)
     test_data = data.import_test_data(args.test_csv)
     print("Making Predictions...")
-    print("ImageID, Prediction, Count")
+    print("ImageID, Prediction, Count, kNN Time")
     with open("predictions.txt", "w") as pred_file:
         i = 1
         for data_point in test_data:
-            k_nn = kd_tree.kNN_search(data_point)
+            t0 = time.perf_counter()
+            k_nn = kd_tree.kNN_search(data_point, k=10000)
+            t1 = time.perf_counter()
             prediction, count = classify(k_nn)
-            pred_file.write(f"{i}, {prediction}")
-            print(f"{i}, {prediction}, {count}")
+            pred_file.write(f"{i}, {prediction}\n")
+            print(f"{i}, {prediction}, {count}, {t1-t0:0.4f}")
             i += 1
 
