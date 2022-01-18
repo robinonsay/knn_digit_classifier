@@ -39,16 +39,26 @@ class KDNode:
 
 
 class KDNodeHeapWrapper:
-    __slots__ = ["node", "ref_val"]
+    __slots__ = ["node", "distance"]
 
     def __init__(self, node: KDNode, ref_val: int):
         self.node = node
-        self.ref_val = ref_val
+        self.distance = distance.euclidean_distance(node.value, ref_val)
 
-    def __lt__(self, other: KDNode):
-        node_dist = distance.euclidean_distance(self.node.value, self.ref_val)
-        other_dist = distance.euclidean_distance(other.node.value, self.ref_val)
-        return node_dist < other_dist
+    def __eq__(self, other):
+        return self.distance == other.distance
+
+    def __lt__(self, other):
+        return self.distance < other.distance
+
+    def __gt__(self, other):
+        return self.distance > other.distance
+
+    def __le__(self, other):
+        return self.distance <= other.distance
+
+    def __ge__(self, other):
+        return self.distance >= other.distance
 
 
 class KDTree:
@@ -80,4 +90,36 @@ class KDTree:
         self.origin = kd_tree(data)
 
     def kNN_search(self, search_point: ArrayLike, k: int = 5) -> List:
-        pass
+        dimension = len(search_point)
+        best_nodes: deque[KDNode] = deque(maxlen=k)
+
+        def kNN_search(current_node: KDNode, depth: int = 0):
+            axis = depth % dimension
+            if current_node is None:
+                return
+            current_dist = distance.euclidean_distance(current_node.value, search_point)
+            if current_node.left is None and current_node.right is None:
+                if len(best_nodes) == 0:
+                    best_nodes.appendleft(current_node)
+                elif current_dist < distance.euclidean_distance(best_nodes[0].value, search_point):
+                    best_nodes.appendleft(current_node)
+            else:
+                if search_point[axis] <= current_node.value[axis]:
+                    kNN_search(current_node.left, depth + 1)
+                else:
+                    kNN_search(current_node.right, depth + 1)
+                if current_dist < distance.euclidean_distance(best_nodes[0].value, search_point):
+                    best_nodes.appendleft(current_node)
+                radius = distance.euclidean_distance(best_nodes[0].value, search_point)
+                dist_plane_to_sp = abs(search_point[axis] - current_node.value[axis])
+                if dist_plane_to_sp < radius:
+                    if search_point[axis] <= current_node.value[axis]:
+                        kNN_search(current_node.right, depth + 1)
+                    else:
+                        kNN_search(current_node.left, depth + 1)
+
+        kNN_search(self.origin)
+        best_values = []
+        for node in best_nodes:
+            best_values.append(node.value)
+        return best_values

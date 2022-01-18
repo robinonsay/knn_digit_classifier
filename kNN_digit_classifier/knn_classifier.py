@@ -54,7 +54,7 @@ class KNNClassifier:
                 if best_count < count:
                     best_key = key
                     best_count = count
-            print(f"Prediction: {best_key}, {best_count}")
+            print(f"Prediction: {best_key} | Count: {best_count}")
             predictions.append(best_key)
             i += 1
         return predictions
