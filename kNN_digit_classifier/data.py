@@ -1,19 +1,18 @@
-from typing import Dict, List, TypeVar
+from typing import Dict, List, TypeVar, Tuple
 from numpy.typing import ArrayLike
 import pandas as pd
 
 
-def import_training_data(training_filename: str) -> Dict:
-    training_data = {}
+def import_training_data(training_filename: str) -> Tuple[ArrayLike, ArrayLike]:
+    data = []
+    keys = []
     training_df = pd.read_csv(training_filename)
     for _, img_series in training_df.iterrows():
         key = img_series.get("label")
         img = img_series.drop("label").to_numpy()
-        if key in training_data:
-            training_data[key].append(img)
-        else:
-            training_data[key] = [img]
-    return training_data
+        data.append(img)
+        keys.append(key)
+    return data, keys
 
 
 def import_test_data(test_filename: str) -> List:
