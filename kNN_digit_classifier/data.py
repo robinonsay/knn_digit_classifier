@@ -1,4 +1,4 @@
-from typing import Dict, List, TypeVar, Tuple
+from typing import List, Tuple
 from numpy.typing import ArrayLike
 import pandas as pd
 
@@ -21,23 +21,3 @@ def import_test_data(test_filename: str) -> List:
     for _, img_series in training_df.iterrows():
         test_data.append(img_series.to_numpy())
     return test_data
-
-
-class KDTreeDataWrapper:
-    __slots__ = ["key", "value"]
-
-    def __init__(self, key: int, value: ArrayLike) -> None:
-        self.key = key
-        self.value = value
-
-    def __repr__(self) -> str:
-        return f"key: {self.key}, value: {self.value}"
-
-    def __str__(self) -> str:
-        return f"key: {self.key}, value: {self.value}"
-
-    def __len__(self):
-        return len(self.value)
-
-    def __getitem__(self, item):
-        return self.value[item]
