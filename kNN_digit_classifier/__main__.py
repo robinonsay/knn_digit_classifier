@@ -15,7 +15,7 @@ if __name__ == "__main__":
     print("Training...")
     training_data = data.import_training_data(args.training_csv)
     test_data = data.import_test_data(args.test_csv)
-    knn_classifier = KNNClassifier(*training_data, k=5)
+    knn_classifier = KNNClassifier(*training_data, k=10)
     print("Making Predictions...")
     predictions = knn_classifier.predict(test_data[:5])
     with open("predictions.csv", "w") as pred_file:
