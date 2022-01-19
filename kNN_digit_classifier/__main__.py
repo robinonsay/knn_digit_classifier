@@ -17,7 +17,7 @@ if __name__ == "__main__":
     test_data = data.import_test_data(args.test_csv)
     knn_classifier = KNNClassifier(*training_data, k=10)
     print("Making Predictions...")
-    predictions = knn_classifier.predict(test_data[:5])
+    predictions = knn_classifier.predict(test_data[:100])
     with open("predictions.csv", "w") as pred_file:
         pred_file.write("ImageID,Label\n")
         i = 1

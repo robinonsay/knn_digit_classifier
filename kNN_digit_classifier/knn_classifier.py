@@ -1,3 +1,4 @@
+import time
 from numpy.typing import ArrayLike
 from kNN_digit_classifier.kd_tree import KDTree
 
@@ -42,7 +43,9 @@ class KNNClassifier:
         i = 1
         for data_point in test_data:
             print(f"Data Point: {i}", end=" | ")
+            t0 = time.perf_counter()
             k_neighbors = self.kd_tree.kNN_search(data_point, k=self.k)
+            t1 = time.perf_counter()
             classes = {}
             for node in k_neighbors:
                 if node.key in classes:
@@ -54,7 +57,7 @@ class KNNClassifier:
                 if best_count < count:
                     best_key = key
                     best_count = count
-            print(f"Prediction: {best_key} | Count: {best_count}")
+            print(f"Prediction: {best_key} | Count: {best_count} | Time: {t1-t0:0.4f}")
             predictions.append(best_key)
             i += 1
         return predictions
