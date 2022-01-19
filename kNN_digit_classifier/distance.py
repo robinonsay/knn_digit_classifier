@@ -1,10 +1,13 @@
-from numpy.typing import ArrayLike
+from numpy.typing import ArrayLike, NDArray
+import numpy as np
 
 
 def squared_euclidean(a: ArrayLike, b: ArrayLike) -> float:
-    if len(a) != len(b):
-        raise ValueError("Dimension of a != Dimension of b")
-    sum_of_squares = 0
-    for i in range(len(a)):
-        sum_of_squares += (a[i] - b[i])**2
-    return sum_of_squares
+    if type(a) is not NDArray:
+        a = np.array(a)
+    if type(b) is not NDArray:
+        b = np.array(b)
+    if a.shape != b.shape:
+        raise ValueError(f"Shape of a {a.shape} != Dimension of b {b.shape}")
+    distance_squared = np.sum((a-b)**2)
+    return distance_squared
