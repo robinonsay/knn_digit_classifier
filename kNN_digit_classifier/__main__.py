@@ -20,7 +20,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     print("Training...")
     training_data = data.import_training_data(args.training_csv)
-    knn_classifier = KNeighborsClassifier(n_neighbors=10)
+    knn_classifier = KNeighborsClassifier(n_neighbors=5)
     knn_classifier.fit(*training_data)
     test_data = data.import_test_data(args.test_csv)
     print("Making Predictions...")
